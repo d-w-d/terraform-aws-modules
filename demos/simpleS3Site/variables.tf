@@ -1,0 +1,5 @@
+# List all variables set in .env with TF_VAR_ prefix
+
+variable "SIMPLE_SITE_BUCKET_NAME" {
+  description = "Name of bucket for simple site"
+}

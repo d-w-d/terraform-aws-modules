@@ -1,1 +1,9 @@
-.terraform.lock.hcl
+**/.terraform
+**/.terraform.lock.hcl
+**/terraform.tfstate
+**/.env
+
+**/dist-lambda
+**/node_modules
+
+.DS_Store

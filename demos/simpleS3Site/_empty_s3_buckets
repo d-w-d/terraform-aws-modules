@@ -1,0 +1,16 @@
+#!/bin/bash
+#
+# Removes everything in S3 buckets so they can be destroyed
+
+clear
+echo """
+======================================================================
+Are you certain you want to destroy all your terraform infrastructure?
+Type 'yes' to confirm.
+======================================================================
+"""
+read decision
+[[ $decision != 'yes' ]] && echo "Cancelling..." && exit 1
+
+source .env
+aws s3 rm s3://${TF_VAR_SIMPLE_SITE_BUCKET_NAME} --recursive

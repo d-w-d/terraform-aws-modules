@@ -1,0 +1,208 @@
+#!/bin/bash
+#
+# Self-updatable bash gist that wraps around terraform; in particular,
+#  it lets you "safely" go through a terraform plan-apply cycle.
+# Only edit in this github gist: https://gist.github.com/d-w-d/26df908d61fd68950f3210da3aba6ceb
+
+### Params
+# Get dir this script is in (from https://stackoverflow.com/a/246128/8620332)
+THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
+VERSION=0.0.7
+[[ -f .env ]] && source .env
+
+### Shortcuts for color switching
+### BLA, RED, GRE, YEL, BLU, MAG, CYA, WHI
+BLA="\033[30m"
+RED="\033[31m"
+GRE="\033[32m"
+YEL="\033[33m"
+BLU="\033[34m"
+MAG="\033[35m"
+CYA="\033[36m"
+WHI="\033[37m"
+
+#######################################
+# Crude helper printout
+# Globals:
+#   None
+# Arguments:
+#   None
+#######################################
+function _usage() {
+  clear
+  echo -e """
+    Usage:
+    _terraform init <DIR> -   Wraps around terraform init <DIR>
+    _terraform run <DIR>  -   Start terraform plan-apply cycle
+    _terraform destroy    -   Wraps around terraform destroy
+    _terraform --help     -   Show usage
+    _terraform --update   -   Update script from github gist
+    _terraform --version  -   Show version
+  """
+}
+
+#######################################
+# Crude mechanism to update this script from SSOT github gist
+# Globals:
+#   None
+# Arguments:
+#   None
+#######################################
+function _update() {
+
+  ### Create obscure location to download latest script
+  TMP_DIR="/tmp/terraform_26df908d61fd68950f3210da3aba6ceb" && mkdir -p $TMP_DIR
+  LATEST_SCRIPT="$TMP_DIR/_latest"
+  RAW_GIST_URL="https://gist.githubusercontent.com/d-w-d/26df908d61fd68950f3210da3aba6ceb/raw/_terraform"
+  if ! curl -L "$RAW_GIST_URL" -o $LATEST_SCRIPT; then
+    echo "Error on curl download of $RAW_GIST_URL"
+    exit 1
+  fi
+  chmod +x $LATEST_SCRIPT
+  sleep 1
+  echo -e """
+  This script will now be version $($LATEST_SCRIPT --version)
+  """
+
+  ### Perform final replacement
+  exec /bin/bash -c "cp $LATEST_SCRIPT $THIS_DIR/_terraform && echo 'Done.'"
+  echo "If you read this then something is wrong!"
+}
+
+#######################################
+# Print version to stdout
+# Globals:
+#   None
+# Arguments:
+#   None
+#######################################
+function _version() {
+  echo "$VERSION"
+}
+
+##############################################################
+# Pause before each stage in the terraform plan-apply cycle
+#   so that user can inspect previous output and quit safely
+# Globals:
+#   None
+# Arguments:
+#   String for the next command to be executed
+##############################################################
+function _pause_before_next_stage() {
+  echo -e """
+  =======================================
+  READY FOR NEXT STAGE: $@
+
+  ${GRE}Now is a safe time to quit.${WHI}
+  ${RED}Do NOT quit while terraform is running!${WHI}
+
+  Press Enter to Continue
+  Press CTRL+C to Quit
+
+  =======================================
+"""
+  read
+  clear
+}
+
+#######################################
+# Start terraform plan-apply cycle
+# Globals:
+#   None
+# Arguments:
+#   Dir containing tf scripts
+#######################################
+function _run() {
+  # Plan
+  CMD="terraform plan $1"
+  _pause_before_next_stage $CMD
+  eval $CMD
+  # Apply
+  CMD="terraform apply $1"
+  _pause_before_next_stage $CMD
+  eval $CMD
+}
+
+#######################################
+# Destroy tf-built infrastructure
+# Globals:
+#   None
+# Arguments:
+#   Dir containing tf scripts
+#######################################
+function _destroy() {
+  clear
+  echo -e """${RED}
+  ======================================================================
+  Are you certain you want to destroy all your terraform infrastructure?
+  Type '${WHI}yes${RED}' to proceed.
+  ======================================================================
+  ${WHI}"""
+  read decision
+  [[ $decision != 'yes' ]] && echo "Cancelling..." && exit 1
+  AWS_DEFAULT_REGION='us-east-1' terraform destroy
+}
+
+#######################################
+# Wrapper around terraform init
+# Globals:
+#   None
+# Arguments:
+#   Dir containing tf scripts
+#######################################
+function _init() {
+  terraform init $1
+}
+
+#######################################
+# Main switch for script logic
+# Globals:
+#   None
+# Arguments:
+#   Args passed to script
+#######################################
+main() {
+
+  ### Handle no args
+  [[ $# -eq 0 ]] && _usage && exit 1
+
+  ### Main Loop
+  while [[ $# -gt 0 ]]; do
+    arg1=$1
+    shift # expose next argument
+    case "$arg1" in
+    "--help" | "help")
+      _usage
+      break
+      ;;
+    "--version" | "version")
+      _version
+      break
+      ;;
+    "--update" | "update")
+      _update
+      break
+      ;;
+    "run")
+      [[ $# -eq 0 ]] && echo "You must specify a dir with tf scripts!" && exit 1
+      _run $1
+      break
+      ;;
+    "init")
+      [[ $# -eq 0 ]] && echo "You must specify a dir with tf scripts!" && exit 1
+      _init $1
+      break
+      ;;
+    "destroy")
+      _destroy
+      break
+      ;;
+    *)
+      echo >&2 "Invalid option: $@"
+      _usage
+      return 1
+      ;;
+    esac
+  done
+}
+main $@

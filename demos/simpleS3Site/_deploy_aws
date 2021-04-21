@@ -1,0 +1,62 @@
+#!/bin/bash
+#
+# Wraps around aws CLI to deploy simple demo site
+
+### Params, etc.
+source .env
+export DIST_DIR="$PWD/dist"
+export TEMP_DIR="$PWD/temp-dist"
+
+#######################################
+# gzip image file and upload to AWS S3
+# Globals:
+#   TEMP_DIR
+# Arguments:
+#   Full path to image file, Mime type
+#######################################
+function _zip_and_upload_image_file() {
+
+  ### Overwrite image file with zipped version
+  local full_path_to_file=$1
+  local mime_type=$2
+  gzip -f9 $full_path_to_file
+  mv $full_path_to_file.gz $full_path_to_file
+
+  ### Upload zipped file to S3
+  local relative_path_to_file=${1##$TEMP_DIR}
+  read -rd '' CMD <<-EOF
+    aws s3 cp
+      --content-type "${mime_type}"
+      --content-encoding "gzip"
+      ${full_path_to_file} s3://${TF_VAR_SIMPLE_SITE_BUCKET_NAME}${relative_path_to_file}
+EOF
+  # echo $CMD
+  eval $CMD
+}
+export -f _zip_and_upload_image_file
+
+function main() {
+
+  ### Ensure dir exists with static files
+  [[ ! -d $DIST_DIR ]] && echo "No dir named $DIST_DIR found!" && exit 1
+
+  ### Make temp clone of DIST_DIR
+  cp -R "$DIST_DIR" "$TEMP_DIR"
+
+  ### Sync everything as is by default
+  aws s3 sync $TEMP_DIR/ s3://$TF_VAR_SIMPLE_SITE_BUCKET_NAME/
+
+  ### Find each image file and pass its path and mime type as args to_zip_and_upload_image_file
+  ### NOTE: need to pass xargs to function via subshell; see here:
+  find $TEMP_DIR -type f |
+    xargs file --mime-type |
+    grep -F 'image/' |
+    tr -s ' ' |
+    sed 's/://g' |
+    cut -d' ' -f1-2 |
+    xargs -I FILE bash -c "_zip_and_upload_image_file FILE"
+
+  ### Remove temp dir
+  rm -rf $TEMP_DIR
+}
+main

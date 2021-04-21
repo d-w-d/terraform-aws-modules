@@ -9,20 +9,20 @@ locals {
 resource "aws_cloudfront_distribution" "cloudfront_resource" {
   origin {
 
-
     domain_name = var.domain_name
     origin_id   = local.s3_origin_id
 
     custom_origin_config {
       http_port              = 80
       https_port             = 443
-      origin_protocol_policy = "http-only"
+      origin_protocol_policy = "match-viewer"
       origin_ssl_protocols   = ["TLSv1", "TLSv1.1", "TLSv1.2"]
     }
   }
   # By default, show index.html file
   default_root_object = "index.html"
   enabled             = true
+  is_ipv6_enabled     = true
 
   # If there is a 404, return index.html with a HTTP 200 Response
   custom_error_response {
@@ -33,9 +33,8 @@ resource "aws_cloudfront_distribution" "cloudfront_resource" {
   }
 
   default_cache_behavior {
-    allowed_methods = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
-    cached_methods  = ["GET", "HEAD"]
-    # target_origin_id = "S3-${aws_s3_bucket.prod_bucket.bucket}"
+    allowed_methods  = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+    cached_methods   = ["GET", "HEAD"]
     target_origin_id = "S3-${var.bucket_name}"
 
     # Forward all query strings, cookies and headers

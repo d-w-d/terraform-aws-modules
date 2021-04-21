@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# Parse output of terraform state to isolate env variables for display and use in other scripts
+unset website_endpoint
+resource_arr=($(terraform state list -no-color | grep -F 'aws_s3_bucket'))
+
+for i in "${resource_arr[@]}"; do
+  # do whatever on $i
+  echo ">>> $i"
+  terraform state show $i -no-color | grep -F 'website_endpoint' | sed 's/.*"\(.*\)".*/\1/g'
+done
+
+# unset website_endpoint
+# eval $(terraform state show -no-color module.prod_s3_bucket_module.aws_s3_bucket.bucket_resource 2>/dev/null | grep -m1 website_endpoint | sed 's/ //g')
+# export prod_website_endpoint=$website_endpoint
+
+# unset domain_name
+# eval $(terraform state show -no-color module.prod_cloudfront_module.aws_cloudfront_distribution.cloudfront_resource 2>/dev/null | grep -m1 domain_name | sed 's/ //g')
+# export cloudfront_website_endpoint=$domain_name
+
+# unset id
+# eval $(terraform state show -no-color module.prod_cloudfront_module.aws_cloudfront_distribution.cloudfront_resource 2>/dev/null | grep -E '\sid' | sed 's/ //g')
+# export CDN_DISTRIBUTION_ID=$id
+
+# if [[ -z $dev_website_endpoint ]]; then
+#   echo -e """
+#   >>> DEV website endpoint: \033[31mNOT SET!\033[0m
+#   """
+# else
+#   echo -e """
+#   >>> DEV website endpoint: \033[32m${dev_website_endpoint}\033[0m
+#   """
+# fi
+
+# if [[ -z $prod_website_endpoint ]]; then
+#   echo -e """
+#   >>> PROD website endpoint: \033[31mNOT SET!\033[0m
+#   """
+# else
+#   echo -e """
+#   >>> PROD website endpoint: \033[32m${prod_website_endpoint}\033[0m
+#   """
+# fi
+
+# if [[ -z $cloudfront_website_endpoint ]]; then
+#   echo -e """
+#   >>> CLOUDFRONT website endpoint: \033[31mNOT SET!\033[0m
+#   """
+# else
+#   echo -e """
+#   >>> CLOUDFRONT website endpoint: \033[32m${cloudfront_website_endpoint}\033[0m
+#   """
+# fi
