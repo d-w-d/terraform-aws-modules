@@ -1,0 +1,27 @@
+#!/bin/bash
+#
+# After reuploading the S3 static assets for a SPA, you need to invalidate the cloudfront cache
+# on index.html in order to enable content to be refreshed on end user's site's
+
+source .env
+
+### Isolate distributionId from terraform state
+distribution_id=$(terraform state show -no-color module.rnddotcom_cloudfront_module.aws_cloudfront_distribution.cloudfront_resource | grep -E "^\s*id" | sed 's/^[^"]*"\([^"]*\)".*/\1/')
+
+### Exit if no id found
+[[ -z $distribution_id ]] &&
+  echo "Cloudfront distribution id not found!" &&
+  exit 1
+
+### Message
+echo -e """${RED}
+==============================================================
+Invalidating index.html file previously deployed to Couldfront
+==============================================================
+${WHI}
+"""
+
+### Perform invalidaton
+aws cloudfront create-invalidation \
+  --distribution-id "$distribution_id" \
+  --paths "/index.html"
