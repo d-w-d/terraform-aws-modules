@@ -16,7 +16,7 @@ distribution_id=$(terraform state show -no-color module.rnddotcom_cloudfront_mod
 ### Message
 echo -e """${RED}
 ==============================================================
-Invalidating index.html file previously deployed to Couldfront
+Invalidating index.html file previously deployed to Cloudfront
 ==============================================================
 ${WHI}
 """

@@ -13,9 +13,10 @@ resource "aws_cloudfront_distribution" "cloudfront_resource" {
     origin_id   = local.s3_origin_id
 
     custom_origin_config {
-      http_port              = 80
-      https_port             = 443
-      origin_protocol_policy = "match-viewer"
+      http_port  = 80
+      https_port = 443
+      # origin_protocol_policy = "match-viewer"
+      origin_protocol_policy = "http-only"
       origin_ssl_protocols   = ["TLSv1", "TLSv1.1", "TLSv1.2"]
     }
   }
@@ -45,15 +46,16 @@ resource "aws_cloudfront_distribution" "cloudfront_resource" {
       }
     }
 
-    viewer_protocol_policy = "allow-all"
+    # viewer_protocol_policy = "allow-all"
+    viewer_protocol_policy = "redirect-to-https"
     min_ttl                = 0
     default_ttl            = 3600
     max_ttl                = 86400
     compress               = true
   }
 
-  # Distributes content to US and Europe
-  price_class = "PriceClass_100"
+  # Distributes all over world
+  price_class = "PriceClass_All"
 
   # Restricts who is able to access this content
   restrictions {
@@ -67,27 +69,4 @@ resource "aws_cloudfront_distribution" "cloudfront_resource" {
   viewer_certificate {
     cloudfront_default_certificate = true
   }
-
-
-  # ordered_cache_behavior {
-  #   path_pattern     = "*"
-  #   allowed_methods  = ["GET", "HEAD", "OPTIONS"]
-  #   cached_methods   = ["GET", "HEAD", "OPTIONS"]
-  #   target_origin_id = local.s3_origin_id
-
-  #   forwarded_values {
-  #     query_string = false
-  #     headers      = ["Origin"]
-
-  #     cookies {
-  #       forward = "none"
-  #     }
-  #   }
-
-  #   min_ttl                = 0
-  #   default_ttl            = 86400
-  #   max_ttl                = 31536000
-  #   compress               = true
-  #   viewer_protocol_policy = "redirect-to-https"
-  # }
 }

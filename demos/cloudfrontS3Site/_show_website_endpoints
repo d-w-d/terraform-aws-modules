@@ -6,6 +6,6 @@ resource_arr=($(terraform state list -no-color | grep -F 'aws_s3_bucket'))
 # Loop through bucket resources and isolate website_endpoint
 for i in "${resource_arr[@]}"; do
   # do whatever on $i
-  echo ">>> $i"
+  # echo ">>> $i"
   terraform state show $i -no-color | grep -F 'website_endpoint' | sed 's/.*"\(.*\)".*/\1/g'
 done
