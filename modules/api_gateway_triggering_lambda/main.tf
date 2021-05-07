@@ -19,15 +19,14 @@ resource "aws_api_gateway_method" "sendmail" {
   authorization = "NONE"
 }
 
-# Integrate the POST method created above with the lambda function being created in lambda.tf
+# Integrate the POST method created above with the lambda function passed through
 resource "aws_api_gateway_integration" "integration" {
   rest_api_id             = aws_api_gateway_rest_api.default.id
   resource_id             = aws_api_gateway_resource.main.id
   http_method             = aws_api_gateway_method.sendmail.http_method
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
-  # uri                     = aws_lambda_function.sendmail.invoke_arn
-  uri = var.lambda_function_invoke_arn
+  uri                     = var.lambda_function_invoke_arn
 }
 
 # Create a response for the post method created above
@@ -36,8 +35,6 @@ resource "aws_api_gateway_method_response" "response_200" {
   resource_id = aws_api_gateway_resource.main.id
   http_method = aws_api_gateway_method.sendmail.http_method
   status_code = 200
-  #
-  # AWS Diff
   response_parameters = {
     "method.response.header.Access-Control-Allow-Origin" = false
   }
@@ -50,8 +47,6 @@ resource "aws_api_gateway_integration_response" "integration_response" {
   http_method = aws_api_gateway_method.sendmail.http_method
   status_code = aws_api_gateway_method_response.response_200.status_code
   depends_on  = [aws_api_gateway_integration.integration]
-  #
-  # AWS diff
   response_parameters = {
     "method.response.header.Access-Control-Allow-Origin" = "'*'"
   }
@@ -75,14 +70,7 @@ resource "aws_api_gateway_method_response" "options_200" {
   response_models = {
     "application/json" = "Empty"
   }
-  # response_parameters = {
-  #   "method.response.header.Access-Control-Allow-Headers" = true,
-  #   "method.response.header.Access-Control-Allow-Methods" = true,
-  #   "method.response.header.Access-Control-Allow-Origin"  = true
-  # }
   depends_on = [aws_api_gateway_method.options_method]
-  #
-  # AWS diff
   response_parameters = {
     "method.response.header.Access-Control-Allow-Headers" = false,
     "method.response.header.Access-Control-Allow-Methods" = false,
@@ -114,7 +102,6 @@ resource "aws_api_gateway_integration_response" "options_integration_response" {
   rest_api_id = aws_api_gateway_rest_api.default.id
   resource_id = aws_api_gateway_resource.main.id
   http_method = aws_api_gateway_method.options_method.http_method
-  # status_code = aws_api_gateway_method_response.options_200.status_code
   status_code = 200
   response_parameters = {
     "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
@@ -122,8 +109,6 @@ resource "aws_api_gateway_integration_response" "options_integration_response" {
     "method.response.header.Access-Control-Allow-Origin"  = "'*'"
   }
   depends_on = [aws_api_gateway_method_response.options_200]
-  #
-  # AWS Diff
   response_templates = {
     "application/json" = ""
   }

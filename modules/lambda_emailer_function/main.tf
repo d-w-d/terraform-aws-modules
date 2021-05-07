@@ -38,7 +38,7 @@ resource "aws_iam_role_policy_attachment" "role-policy-attachment" {
 # Create sendmail lambda function resource
 resource "aws_lambda_function" "sendmail" {
   filename      = var.zipped_file_and_path_name
-  function_name = "${var.prefix}${var.function_name}"
+  function_name = "${var.prefix}${var.lambda_function_name}"
   role          = aws_iam_role.iam_for_lambda.arn
   handler       = "exports.handler"
 

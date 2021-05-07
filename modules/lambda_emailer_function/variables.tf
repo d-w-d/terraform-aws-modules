@@ -7,6 +7,10 @@ variable "prefix" {
   description = "Prefix for all variables supplied from calling module"
 }
 
+variable "lambda_function_name" {
+  description = "Name of lambda function"
+}
+
 variable "zipped_file_and_path_name" {
   description = "Path and name of zipped file containing the lambda function; supplied by module caller"
 }
@@ -38,11 +42,6 @@ variable "RECAPTCHA_BYPASS_CODE" {
 variable "role_name" {
   description = "Name for the Lambda role."
   default     = "lambda-role"
-}
-
-variable "function_name" {
-  description = "Name for the Lambda function."
-  default     = "lambda-sendmail"
 }
 
 variable "billing_tag" {

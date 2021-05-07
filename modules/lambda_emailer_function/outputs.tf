@@ -8,3 +8,9 @@ output "lambda_function_invoke_arn" {
   description = "Invocation ARN of lambda function created herein; required by api-gateway integrations"
   value       = aws_lambda_function.sendmail.invoke_arn
 }
+
+output "lambda_function_arn" {
+  description = "ARN of Lambda function"
+  value       = aws_lambda_function.sendmail.arn
+}
+

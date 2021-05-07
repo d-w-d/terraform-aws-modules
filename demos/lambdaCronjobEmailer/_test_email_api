@@ -1,0 +1,30 @@
+#! /bin/bash
+#
+# Script to invoke Lambda endpoint
+
+# Need to get TF_VAR_RECAPTCHA_BYPASS_CODE from .env
+source .env
+
+# Get variable $invoke_url
+source _invoke_url_export --quiet
+
+# Test post route to lambda function!
+# This url must be obtained from 'invoke' url in the aws api-gateway console:
+# AWS Console > Amazon API GAteway > [Name of API; default is 'las'] > Stages > POST
+url="${invoke_url}/contact?captchaBypassCode=${TF_VAR_RECAPTCHA_BYPASS_CODE}"
+
+echo """
+
+=======================================================================================
+Testing Emailer at endpoint: $url
+=======================================================================================
+
+"""
+
+curl \
+  -d '{"name":"Scrooge", "email":"ddarg@umd.edu" , "message":"Gooday mate!!!"}' \
+  -H "Content-Type: application/json" \
+  -X POST \
+  -i \
+  -k $url
+# -v

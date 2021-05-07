@@ -1,5 +1,3 @@
-
-
 #######################################
 # Variables supplied by module caller #
 #######################################
@@ -15,7 +13,6 @@ variable "lambda_function_name" {
 variable "lambda_function_invoke_arn" {
   description = "Invocation ARN of lambda function supplied by module caller (and output by separate lambda-function module)"
 }
-
 
 #################################
 # Variables with default values #

@@ -20,9 +20,7 @@ export const clientWebpackConfig: WebpackConfiguration = {
     // filename: '[name].[contenthash].js',
     filename: "lambda.js",
     // Path relative to executable launch point
-    // path: path.resolve("dist-lambda"),
-    path:
-      "/Users/dwd/work/terraform/terraform-aws-modules/demos/lambdaEmailer/dist-lambda",
+    path: path.resolve("dist-lambda"),
     // Ensure bundle has exportable module
     libraryTarget: "commonjs",
   },
