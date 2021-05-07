@@ -12,9 +12,5 @@
     "webpack-bundle-analyzer": "^4.4.0",
     "webpack-cli": "^4.6.0",
     "webpack-node-externals": "^2.5.2"
-  },
-  "dependencies": {
-    "axios": "^0.21.1",
-    "googleapis": "^39.2.0"
   }
 }
