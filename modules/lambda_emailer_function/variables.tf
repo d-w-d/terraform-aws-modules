@@ -53,4 +53,12 @@ variable "RECAPTCHA_BYPASS_CODE" {
   default     = ""
 }
 
+variable "SITE_LIST_SOURCES" {
+  description = "List of urls to JSON objects with array of sites to be checked"
+  default     = ""
+}
 
+variable "EXTRA_SITES_LIST" {
+  description = "List of urls to be checked"
+  default     = ""
+}
