@@ -20,12 +20,6 @@ EOF
 }
 
 
-# Define list of policy arn's given in the AWS console
-variable "iam_policy_arn_list" {
-  type        = list(string)
-  description = "IAM Policies to be attached to role"
-  default     = ["arn:aws:iam::aws:policy/CloudWatchFullAccess", "arn:aws:iam::aws:policy/AmazonSESFullAccess"]
-}
 
 # Create attachment to our named role of the list of policies given by list of arn's
 resource "aws_iam_role_policy_attachment" "role-policy-attachment" {

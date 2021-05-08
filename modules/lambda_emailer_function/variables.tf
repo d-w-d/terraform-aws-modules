@@ -74,3 +74,8 @@ variable "lambda_timeout" {
   default     = "3"
 }
 
+variable "iam_policy_arn_list" {
+  type        = list(string)
+  description = "IAM Policies to be attached to role"
+  default     = ["arn:aws:iam::aws:policy/CloudWatchFullAccess", "arn:aws:iam::aws:policy/AmazonSESFullAccess"]
+}
