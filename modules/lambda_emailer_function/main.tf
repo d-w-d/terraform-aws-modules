@@ -41,6 +41,7 @@ resource "aws_lambda_function" "sendmail" {
   function_name = "${var.prefix}${var.lambda_function_name}"
   role          = aws_iam_role.iam_for_lambda.arn
   handler       = "exports.handler"
+  timeout       = var.lambda_timeout
 
   # The filebase64sha256() function is available in Terraform 0.11.12 and later
   # For Terraform 0.11.11 and earlier, use the base64sha256() function and the file() function:

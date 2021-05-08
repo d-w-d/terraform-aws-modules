@@ -69,4 +69,8 @@ variable "node_runtime" {
   default     = "nodejs10.x"
 }
 
+variable "lambda_timeout" {
+  description = "Time before lambda function times out"
+  default     = "3"
+}
 
