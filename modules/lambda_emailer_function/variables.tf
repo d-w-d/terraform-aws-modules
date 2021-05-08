@@ -25,15 +25,6 @@ variable "STATIC_RECEIVER_EMAIL" {
   description = "Email string supplied from calling module; this is the email account that receives the email; typically originating from .env file"
 }
 
-variable "RECAPTCHA_SECRET" {
-  # TO BE DEPLOYED AS ENV VARIABLE #
-  description = "If a recaptcha secret key is provided, then the Lambda function will seek to verify a recaptcha token passed from client"
-}
-
-variable "RECAPTCHA_BYPASS_CODE" {
-  # TO BE DEPLOYED AS ENV VARIABLE #
-  description = "If this bypass code is provided at endpoint invocation, then the requirement for RECAPTCHA will be bypassed"
-}
 
 #################################
 # Variables with default values #
@@ -50,5 +41,16 @@ variable "billing_tag" {
 }
 
 
+variable "RECAPTCHA_SECRET" {
+  # TO BE DEPLOYED AS ENV VARIABLE #
+  description = "If a recaptcha secret key is provided, then the Lambda function will seek to verify a recaptcha token passed from client"
+  default     = ""
+}
+
+variable "RECAPTCHA_BYPASS_CODE" {
+  # TO BE DEPLOYED AS ENV VARIABLE #
+  description = "If this bypass code is provided at endpoint invocation, then the requirement for RECAPTCHA will be bypassed"
+  default     = ""
+}
 
 
