@@ -54,6 +54,7 @@ resource "aws_lambda_function" "sendmail" {
       RECAPTCHA_BYPASS_CODE = var.RECAPTCHA_BYPASS_CODE
       SITE_LIST_SOURCES     = var.SITE_LIST_SOURCES
       EXTRA_SITES_LIST      = var.EXTRA_SITES_LIST
+      S3_BUCKET_NAME        = var.S3_BUCKET_NAME
     }
   }
 }

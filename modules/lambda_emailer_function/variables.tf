@@ -63,9 +63,13 @@ variable "EXTRA_SITES_LIST" {
   default     = ""
 }
 
+variable "S3_BUCKET_NAME" {
+  description = "S3 bucket name that Lambda can write to iff you overwrite default policy"
+  default     = ""
+}
 
 variable "node_runtime" {
-  description = "Node version of Lamda"
+  description = "Node version of Lambda environment"
   default     = "nodejs10.x"
 }
 
