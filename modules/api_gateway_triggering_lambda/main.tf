@@ -114,12 +114,10 @@ resource "aws_api_gateway_integration_response" "options_integration_response" {
   }
 }
 
-
 # Create permission for api resource to invoke lambda function at specified route
 resource "aws_lambda_permission" "allow_api_gateway" {
-  statement_id = "contact"
-  action       = "lambda:InvokeFunction"
-  # function_name = aws_lambda_function.sendmail.function_name
+  statement_id  = "contact"
+  action        = "lambda:InvokeFunction"
   function_name = var.lambda_function_name
   principal     = "apigateway.amazonaws.com"
 

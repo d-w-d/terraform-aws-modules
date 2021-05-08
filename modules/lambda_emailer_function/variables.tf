@@ -62,3 +62,11 @@ variable "EXTRA_SITES_LIST" {
   description = "List of urls to be checked"
   default     = ""
 }
+
+
+variable "node_runtime" {
+  description = "Node version of Lamda"
+  default     = "nodejs10.x"
+}
+
+

@@ -48,7 +48,7 @@ resource "aws_lambda_function" "sendmail" {
   # source_code_hash = "${filebase64sha256("dist-lambda/exports.js.zip")}"
   source_code_hash = filebase64sha256(var.zipped_file_and_path_name)
 
-  runtime = "nodejs10.x"
+  runtime = var.node_runtime
 
   environment {
     variables = {
