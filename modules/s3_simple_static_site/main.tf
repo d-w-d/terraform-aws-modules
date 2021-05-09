@@ -1,16 +1,6 @@
-
-# Here we specify the bucket for site
 resource "aws_s3_bucket" "my_bucket_resource" {
   bucket = var.bucket_name
-  acl    = "public-read"
-
-  /*   cors_rule {
-    allowed_headers = ["*"]
-    allowed_methods = ["PUT", "POST"]
-    allowed_origins = ["*"]
-    expose_headers  = ["ETag"]
-    max_age_seconds = 3000
-  } */
+  acl    = var.bucket_acl
 
   policy = <<-POLICY
   {
@@ -27,19 +17,36 @@ resource "aws_s3_bucket" "my_bucket_resource" {
   }
 POLICY
 
-  website {
-    index_document = "index.html"
-    error_document = "index.html"
 
-    routing_rules = <<-EOF
-    [{
-        "Condition": {
-            "KeyPrefixEquals": "docs/"
-        },
-        "Redirect": {
-            "ReplaceKeyPrefixWith": "documents/"
-        }
-    }]
-EOF
+  # Conditional cors_rule block
+  dynamic "cors_rule" {
+    for_each = var.cors_rule_enabled ? [1] : []
+    content {
+      allowed_headers = var.cors_rule_allowed_headers
+      allowed_methods = var.cors_rule_allowed_methods
+      allowed_origins = var.cors_rule_allowed_origins
+      expose_headers  = var.cors_rule_expose_headers
+      max_age_seconds = var.cors_rule_max_age_seconds
+    }
+  }
+
+
+  # Conditional website block
+  dynamic "website" {
+    for_each = var.website_enabled ? [1] : []
+    content {
+      index_document = var.website_index_document
+      error_document = var.website_error_document
+      # routing_rules = jsonencode(
+      #   [{
+      #     "Condition" : {
+      #       "KeyPrefixEquals" : "docs/"
+      #     },
+      #     "Redirect" : {
+      #       "ReplaceKeyPrefixWith" : "documents/"
+      #     }
+      #   }]
+      # )
+    }
   }
 }
