@@ -9,4 +9,11 @@ output "bucket_name" {
   value       = aws_s3_bucket.my_bucket_resource.bucket
 }
 
+output "bucket_id" {
+  description = "Needed for cloudfront association"
+  value       = aws_s3_bucket.my_bucket_resource.id
+}
+
+
+
 
