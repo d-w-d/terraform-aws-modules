@@ -47,14 +47,14 @@ resource "aws_lambda_function" "sendmail" {
 
   environment {
     variables = {
-      billing               = "${var.prefix}${var.billing_tag}"
-      STATIC_SENDER_EMAIL   = var.STATIC_SENDER_EMAIL
-      STATIC_RECEIVER_EMAIL = var.STATIC_RECEIVER_EMAIL
-      RECAPTCHA_SECRET      = var.RECAPTCHA_SECRET
-      RECAPTCHA_BYPASS_CODE = var.RECAPTCHA_BYPASS_CODE
-      SITE_LIST_SOURCES     = var.SITE_LIST_SOURCES
-      EXTRA_SITES_LIST      = var.EXTRA_SITES_LIST
-      S3_BUCKET_NAME        = var.S3_BUCKET_NAME
+      billing                       = "${var.prefix}${var.billing_tag}"
+      STATIC_PRIMARY_SENDER_EMAIL   = var.STATIC_PRIMARY_SENDER_EMAIL
+      STATIC_SECONDARY_SENDER_EMAIL = var.STATIC_SECONDARY_SENDER_EMAIL
+      SITE_LIST_SOURCES             = var.SITE_LIST_SOURCES
+      EXTRA_SITES                   = var.EXTRA_SITES
+      S3_BUCKET_NAME                = var.S3_BUCKET_NAME
+      RECAPTCHA_SECRET              = var.RECAPTCHA_SECRET
+      RECAPTCHA_BYPASS_CODE         = var.RECAPTCHA_BYPASS_CODE
     }
   }
 }

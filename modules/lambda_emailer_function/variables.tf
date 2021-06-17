@@ -15,16 +15,6 @@ variable "zipped_file_and_path_name" {
   description = "Path and name of zipped file containing the lambda function; supplied by module caller"
 }
 
-variable "STATIC_SENDER_EMAIL" {
-  # TO BE DEPLOYED AS ENV VARIABLE #
-  description = "Email string supplied from calling module; this is the 'from' email address viewed from the 'receiver' email account; typically originating from .env file"
-}
-
-variable "STATIC_RECEIVER_EMAIL" {
-  # TO BE DEPLOYED AS ENV VARIABLE #
-  description = "Email string supplied from calling module; this is the email account that receives the email; typically originating from .env file"
-}
-
 
 #################################
 # Variables with default values #
@@ -39,7 +29,6 @@ variable "billing_tag" {
   description = "Name for a tag to keep track of resource for billing."
   default     = "lambda-biller"
 }
-
 
 variable "RECAPTCHA_SECRET" {
   # TO BE DEPLOYED AS ENV VARIABLE #
@@ -58,8 +47,18 @@ variable "SITE_LIST_SOURCES" {
   default     = ""
 }
 
-variable "EXTRA_SITES_LIST" {
+variable "EXTRA_SITES" {
   description = "List of urls to be checked"
+  default     = ""
+}
+
+variable "STATIC_PRIMARY_SENDER_EMAIL" {
+  description = "..."
+  default     = ""
+}
+
+variable "STATIC_SECONDARY_SENDER_EMAIL" {
+  description = "..."
   default     = ""
 }
 
