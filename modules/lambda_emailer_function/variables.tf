@@ -67,6 +67,12 @@ variable "S3_BUCKET_NAME" {
   default     = ""
 }
 
+
+variable "GITHUB_ACCESS_TOKEN" {
+  description = "Token to enable access to files in private github repos"
+  default     = ""
+}
+
 variable "node_runtime" {
   description = "Node version of Lambda environment"
   default     = "nodejs10.x"

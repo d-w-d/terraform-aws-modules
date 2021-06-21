@@ -55,6 +55,7 @@ resource "aws_lambda_function" "sendmail" {
       S3_BUCKET_NAME                = var.S3_BUCKET_NAME
       RECAPTCHA_SECRET              = var.RECAPTCHA_SECRET
       RECAPTCHA_BYPASS_CODE         = var.RECAPTCHA_BYPASS_CODE
+      GITHUB_ACCESS_TOKEN           = var.GITHUB_ACCESS_TOKEN
     }
   }
 }
