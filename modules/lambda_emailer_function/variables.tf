@@ -52,6 +52,11 @@ variable "EXTRA_SITES" {
   default     = ""
 }
 
+variable "STATIC_RECEIVER_EMAILS" {
+  description = "Needed in case the lambda logic requires you to specify one or more receivers"
+  default     = ""
+}
+
 variable "STATIC_PRIMARY_SENDER_EMAIL" {
   description = "..."
   default     = ""

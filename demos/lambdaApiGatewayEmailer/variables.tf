@@ -5,12 +5,20 @@ variable "PREFIX" {
   description = "Prefix to be applied to all variables supplied by .env file"
 }
 
-variable "STATIC_RECEIVER_EMAIL" {
+variable "LAMBDA_FUNCTION_NAME" {
+  description = "..."
+}
+
+variable "STATIC_RECEIVER_EMAILS" {
   description = "Email account to receive emails; to be provisioned as .env var in lambda function; supplied by .env file"
 }
 
-variable "STATIC_SENDER_EMAIL" {
+variable "STATIC_PRIMARY_SENDER_EMAIL" {
   description = "Email account 'from' which emails are sent; to be provisioned as .env var in lambda function; supplied by .env file"
+}
+
+variable "STATIC_SECONDARY_SENDER_EMAIL" {
+  description = ""
 }
 
 variable "RECAPTCHA_SECRET" {

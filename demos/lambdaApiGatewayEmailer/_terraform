@@ -1,13 +1,17 @@
 #!/bin/bash
 #
 # Self-updatable bash gist that wraps around terraform; in particular,
-#  it lets you "safely" go through a terraform plan-apply cycle.
+# it lets you "safely" go through a terraform plan-apply cycle.
 # Only edit in this github gist: https://gist.github.com/d-w-d/26df908d61fd68950f3210da3aba6ceb
+#
+# Version Notes
+# 1.0.0 <--> terraform 1.0.0 released with breaking changes; no longer accepts dir as argument (requires -chdir="..." option)
+#
 
 ### Params
 # Get dir this script is in (from https://stackoverflow.com/a/246128/8620332)
 THIS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
-VERSION=0.0.7
+VERSION=1.0.1
 [[ -f .env ]] && source .env
 
 ### Shortcuts for color switching
@@ -42,6 +46,17 @@ function _usage() {
 }
 
 #######################################
+# Print version to stdout
+# Globals:
+#   None
+# Arguments:
+#   None
+#######################################
+function _version() {
+  echo "$VERSION"
+}
+
+#######################################
 # Crude mechanism to update this script from SSOT github gist
 # Globals:
 #   None
@@ -51,33 +66,29 @@ function _usage() {
 function _update() {
 
   ### Create obscure location to download latest script
-  TMP_DIR="/tmp/terraform_26df908d61fd68950f3210da3aba6ceb" && mkdir -p $TMP_DIR
+  TMP_DIR="/tmp/terraform_26df908d61fd68950f3210da3aba6ceb" 
+  [ -d $TMP_DIR ] && rm -rf $TMP_DIR
+  mkdir -p $TMP_DIR
   LATEST_SCRIPT="$TMP_DIR/_latest"
   RAW_GIST_URL="https://gist.githubusercontent.com/d-w-d/26df908d61fd68950f3210da3aba6ceb/raw/_terraform"
-  if ! curl -L "$RAW_GIST_URL" -o $LATEST_SCRIPT; then
+  ### Try to download non-cached raw gist
+  if ! curl -L -H 'Cache-Control: no-cache' "$RAW_GIST_URL?$(date +%s)" -o $LATEST_SCRIPT; then
     echo "Error on curl download of $RAW_GIST_URL"
     exit 1
   fi
   chmod +x $LATEST_SCRIPT
+  echo -e """${GRE}
+  ================================================
+  This script was version: ${CYA}$(_version)${GRE}
+   It will now be version: ${CYA}$($LATEST_SCRIPT --version)${GRE}
+  ================================================
+  ${WHI}"""
   sleep 1
-  echo -e """
-  This script will now be version $($LATEST_SCRIPT --version)
-  """
 
   ### Perform final replacement
+  ### exec will replace current process while retaining same PID; see here: https://www.shell-tips.com/linux/how-to-reload-shell/
   exec /bin/bash -c "cp $LATEST_SCRIPT $THIS_DIR/_terraform && echo 'Done.'"
   echo "If you read this then something is wrong!"
-}
-
-#######################################
-# Print version to stdout
-# Globals:
-#   None
-# Arguments:
-#   None
-#######################################
-function _version() {
-  echo "$VERSION"
 }
 
 ##############################################################
@@ -114,11 +125,11 @@ function _pause_before_next_stage() {
 #######################################
 function _run() {
   # Plan
-  CMD="terraform plan $1"
+  CMD="terraform -chdir="$1" plan"
   _pause_before_next_stage $CMD
   eval $CMD
   # Apply
-  CMD="terraform apply $1"
+  CMD="terraform -chdir="$1" apply"
   _pause_before_next_stage $CMD
   eval $CMD
 }
@@ -140,7 +151,7 @@ function _destroy() {
   ${WHI}"""
   read decision
   [[ $decision != 'yes' ]] && echo "Cancelling..." && exit 1
-  AWS_DEFAULT_REGION='us-east-1' terraform destroy
+  AWS_DEFAULT_REGION='us-east-1' terraform -chdir="$1" destroy
 }
 
 #######################################
@@ -151,7 +162,7 @@ function _destroy() {
 #   Dir containing tf scripts
 #######################################
 function _init() {
-  terraform init $1
+  terraform -chdir="$1" init -upgrade=true
 }
 
 #######################################

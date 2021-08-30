@@ -1,6 +1,7 @@
 {
   "devDependencies": {
     "@types/aws-lambda": "^8.10.75",
+    "@types/node": "^16.7.7",
     "aws-sdk": "^2.804.0",
     "path": "^0.12.7",
     "ts-loader": "^8.1.0",

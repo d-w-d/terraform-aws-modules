@@ -48,6 +48,7 @@ resource "aws_lambda_function" "sendmail" {
   environment {
     variables = {
       billing                       = "${var.prefix}${var.billing_tag}"
+      STATIC_RECEIVER_EMAILS        = var.STATIC_RECEIVER_EMAILS
       STATIC_PRIMARY_SENDER_EMAIL   = var.STATIC_PRIMARY_SENDER_EMAIL
       STATIC_SECONDARY_SENDER_EMAIL = var.STATIC_SECONDARY_SENDER_EMAIL
       SITE_LIST_SOURCES             = var.SITE_LIST_SOURCES

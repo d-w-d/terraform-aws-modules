@@ -2,19 +2,8 @@ import * as SES from "aws-sdk/clients/ses";
 import { APIGatewayEvent } from "aws-lambda";
 import axios from "axios";
 
-/**
- * The callback result object has to be <exact>
- * If you have excess properties then lambda-api-gateway will register a generic error
- */
-interface ICallbackResult {
-  isBase64Encoded: boolean;
-  headers: {
-    "Content-Type": "application/json";
-    "Access-Control-Allow-Origin": "*";
-  };
-  statusCode: 200 | 500;
-  body: string; // JSON.stringify
-}
+import { ICallbackResult } from "./models";
+import { failureResponse, successResponse } from "./responses";
 
 /**
  * Email function
@@ -23,42 +12,24 @@ export const emailer = async (
   event: APIGatewayEvent,
   callback: AWSLambda.Callback<ICallbackResult>
 ): Promise<void> => {
-  // ------------->>>
+  // --->>
 
-  // Define params
-  const successResponse: ICallbackResult = {
-    isBase64Encoded: false,
-    headers: {
-      "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*",
-    },
-    statusCode: 200,
-    body: JSON.stringify({ success: true }),
-  };
-
-  const failureResponse: ICallbackResult = {
-    isBase64Encoded: false,
-    headers: {
-      "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*",
-    },
-    statusCode: 500,
-    body: JSON.stringify({ success: false }),
-  };
-
-  if (!event.body) {
+  // Extract body and query params from event
+  let body: any;
+  try {
+    body = JSON.parse(event.body);
+  } catch (err) {
     callback(null, {
       ...failureResponse,
       body: JSON.stringify({
         success: false,
-        message: "No body provided in request",
+        message: "No parseable body provided in request: " + event.body,
       }),
     });
-    return Promise.resolve();
+    return;
   }
 
-  // Extract body and query params from event
-  const body = JSON.parse(event.body);
+  // Extract captcha bypass code from event
   const captchaBypassCode = event.queryStringParameters?.captchaBypassCode;
 
   // Call ses-email api
@@ -99,7 +70,7 @@ async function sendEmail(
   recaptchaBypassCode: string | undefined,
   done: (err, data) => void
 ) {
-  // -------------------------->>>
+  // --->>
 
   // Logic to decide whether to verify RECAPTCHA token
   const isRecaptchaBypassed =
@@ -121,18 +92,21 @@ async function sendEmail(
   }
 
   // Check that the env vars are not undefined
-  const sourceEmail = process.env.STATIC_SENDER_EMAIL;
-  if (!sourceEmail) {
-    const err = new Error("process.env.STATIC_SENDER_EMAIL undefined");
+  const STATIC_PRIMARY_SENDER_EMAIL = process.env.STATIC_PRIMARY_SENDER_EMAIL;
+  if (!STATIC_PRIMARY_SENDER_EMAIL) {
+    const err = new Error("process.env.STATIC_PRIMARY_SENDER_EMAIL undefined");
     done(err, data);
     return;
   }
 
-  const toEmailAddresses = process.env.STATIC_RECEIVER_EMAIL
-    ? [process.env.STATIC_RECEIVER_EMAIL]
-    : undefined;
-  if (!toEmailAddresses) {
-    const err = new Error("process.env.STATIC_RECEIVER_EMAIL undefined");
+  let STATIC_RECEIVER_EMAILS: string[];
+  try {
+    STATIC_RECEIVER_EMAILS = JSON.parse(process.env.STATIC_RECEIVER_EMAILS);
+  } catch (e) {
+    const err = new Error(
+      "STATIC_RECEIVER_EMAILS couldn't be parsed: " +
+        process.env.STATIC_RECEIVER_EMAILS
+    );
     done(err, data);
     return;
   }
@@ -142,9 +116,9 @@ async function sendEmail(
     Destination: {
       // Note: see here to send to non-verified addresses
       // https://docs.aws.amazon.com/ses/latest/DeveloperGuide/request-production-access.html
-      ToAddresses: toEmailAddresses,
+      ToAddresses: STATIC_RECEIVER_EMAILS,
     },
-    Source: sourceEmail,
+    Source: STATIC_PRIMARY_SENDER_EMAIL,
     Message: {
       Body: {
         Text: {
